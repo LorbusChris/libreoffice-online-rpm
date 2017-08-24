@@ -2,38 +2,36 @@ Name:           loolwsd
 Version:        5.4.0.2
 Release:        1%{?dist}
 Vendor:         %{vendor}
-Summary:        LibreOffice Online WebSocket Daemon
+Summary:        LibreOffice Online Web Services Daemon
 License:        MPL
-Source0:        https://github.com/LibreOffice/online/archive/libreoffice-%{version}.tar.gz
-BuildRequires:  libcap-devel libpng-devel poco-devel >= 1.7.5
-BuildRequires:  libpcap kernel-headers
 
-#Requires:       %{lo_rpm_list}
-Requires:       systemd
-Requires(post): coreutils grep sed
-# loolwsd dependencies
-Requires:       expat keyutils-libs krb5-libs libattr libcap libcom_err libgcc libpng libselinux openssl-libs pcre xz-libs zlib
+Source0:        https://github.com/LibreOffice/online/archive/libreoffice-%{version}.tar.gz
+
+BuildRequires:  libcap libcap-devel libpng-devel poco-devel >= 1.7.5 python python-polib systemd
+BuildRequires:  kernel-headers glibc-devel autoconf automake libtool cppunit-devel npm jake fontconfig
+
+Requires:       libreoffice systemd
+Requires:       expat keyutils-libs krb5-libs libattr libcap libcom_err libgcc libpng libselinux pcre xz-libs zlib cppunit openssl-libs
 Requires:       poco-crypto >= 1.7.5 poco-foundation >= 1.7.5 poco-json >= 1.7.5 poco-net >= 1.7.5 poco-netssl >= 1.7.5 poco-util >= 1.7.5 poco-xml >= 1.7.5
-# LibreOffice dependencies (unfortunately upstream LibreOffice RPM packages (from TDF) do not have real dependencies)
-Requires:       atk avahi-glib avahi-libs bzip2-libs cairo cups-libs dbus-glib dbus-libs fontconfig freetype GConf2 gdk-pixbuf2 glib2 gnome-vfs2 graphite2 gstreamer gstreamer-plugins-base gtk2 harfbuzz libdrm libffi libICE libSM libuuid libX11 libXau libxcb libXcomposite libXcursor libXdamage libXext libXfixes libXi libXinerama libXrandr libXrender libxshmfence libXt libXxf86vm mesa-libEGL mesa-libgbm mesa-libGL mesa-libglapi pango pixman
+Requires:       atk avahi-glib avahi-libs bzip2-libs cairo cups-libs dbus-glib dbus-libs fontconfig freetype GConf2 gdk-pixbuf2 glib2 gnome-vfs2 graphite2 gstreamer gstreamer-plugins-base gtk2 harfbuzz libdrm libffi libICE libSM libuuid libX11 libXau libxcb libXcomposite libXcursor libXdamage libXext libXfixes libXi libXinerama libXrandr libXrender libxshmfence libXt libXxf86vm mesa-libEGL mesa-libgbm mesa-libGL mesa-libglapi pango pixman python3
+Requires(post): coreutils grep sed fontconfig
+
 Provides:       loleaflet = 1.5.8
 Obsoletes:      loleaflet <= 1.5.8
 
 %description
 
 %prep
-%setup -n loolwsd-%{version}
+%setup -n online-libreoffice-%{version}
 
 %build
+./autogen.sh
 %configure \
-	--enable-silent-rules \
-	--with-lokit-path=bundled/include \
-	--with-lo-path=%{loroot} \
-# %if 0%{?config_options:1}
-# 	%{config_options}
-# %endif
+  --enable-silent-rules \
+  --with-lokit-path=`pwd`/bundled/include \
+  --with-lo-path=%{_libdir}
 
-env BUILDING_FROM_RPMBUILD=yes make %{?_smp_mflags}
+env BUILDING_FROM_RPMBUILD=yes make CXXFLAGS="%{optflags} -Wno-error" %{?_smp_mflags}
 
 %check
 #env BUILDING_FROM_RPMBUILD=yes make check
@@ -85,7 +83,7 @@ rm -rf /var/cache/loolwsd/*
 
 # Figure out where LO is installed, let's hope it is not a mount point
 # Create a directory for loolwsd on the same file system
-loroot=%{loroot}
+loroot=%{_libdir}
 loolparent=`cd ${loroot} && cd .. && /bin/pwd`
 
 rm -rf ${loolparent}/lool
