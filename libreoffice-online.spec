@@ -105,6 +105,9 @@ su lool -c "loolwsd-systemplate-setup ${loolparent}/lool/systemplate ${loroot} >
 %systemd_postun loolwsd.service
 
 %changelog
+* Sat Sep 16 2017 Christian Glombek <christian.glombek@rwth-aachen.de> canary-20170916122948
+- libreoffice-online package built with tito
+
 * Sat Sep 16 2017 Christian Glombek <christian.glombek@rwth-aachen.de> canary-20170916121151
 - libreoffice-online package built with tito
 
