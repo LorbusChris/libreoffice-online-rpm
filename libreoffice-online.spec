@@ -1,11 +1,13 @@
-Name:           loolwsd
-Version:        5.4.0.2
-Release:        1%{?dist}
+%define build_timestamp %(date +"%Y%m%d%H%M%%S")
+
+Name:           libreoffice-online
+Version:        canary
+Release:        %{build_timestamp}%{?dist}
 Vendor:         %{vendor}
 Summary:        LibreOffice Online Web Services Daemon
 License:        MPL
 
-Source0:        https://github.com/LibreOffice/online/archive/libreoffice-%{version}.tar.gz
+Source0:        https://github.com/LorbusChris/online/archive/master.tar.gz
 
 BuildRequires:  libcap libcap-devel libpng-devel poco-devel >= 1.7.5 python python-polib systemd
 BuildRequires:  kernel-headers glibc-devel autoconf automake libtool cppunit-devel npm jake fontconfig
@@ -22,7 +24,7 @@ Obsoletes:      loleaflet <= 1.5.8
 %description
 
 %prep
-%setup -n online-libreoffice-%{version}
+%setup -n online-master
 
 %build
 ./autogen.sh
