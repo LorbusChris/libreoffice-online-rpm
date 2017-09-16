@@ -105,6 +105,9 @@ su lool -c "loolwsd-systemplate-setup ${loolparent}/lool/systemplate ${loroot} >
 %systemd_postun loolwsd.service
 
 %changelog
+* Sat Sep 16 2017 Christian Glombek <christian.glombek@rwth-aachen.de> canary-20170916125435
+- libreoffice-online package built with tito
+
 * Sun Aug 06 2017 Christian Glombek <christian.glombek@rwth-aachen.de> 5.4.0.2
 - RPM packaging for LibreOffice Online in Fedora
 - Forked from https://github.com/LibreOffice/online/blob/fdec71ad6963bd91fa56b379bdb0380776efd93a/loolwsd.spec.in
