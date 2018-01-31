@@ -6,6 +6,8 @@ License:        MPL
 
 Source0:        https://github.com/LibreOffice/online/archive/libreoffice-%{version}.tar.gz
 
+Patch0:         %{name}-no_setcap_build.patch
+
 %{?systemd_requires}
 BuildRequires:  systemd
 BuildRequires:  libcap libcap-devel libpng-devel poco-devel >= 1.7.5 python python-polib pcre-devel
@@ -31,6 +33,7 @@ LibreOffice Online Web Socket Daemon
 
 %prep
 %setup -n online-libreoffice-%{version}
+%patch0 -p1
 
 %build
 ./autogen.sh
@@ -125,8 +128,9 @@ su lool -c "loolwsd-systemplate-setup ${loolparent}/lool/systemplate ${loroot} >
 
 %changelog
 * Thu Feb 1 2018 Christian Glombek <christian.glombek@rwth-aachen.de> - 6.0.0.3-1
-- Updated to version 6.0.0.3
-- Add PAM support (upstream @Timar)
+- Updates to version 6.0.0.3
+- Adds patch to to build without env
+- Adds PAM support (upstream @Timar)
 
 * Wed Sep 27 2017 Christian Glombek <christian.glombek@rwth-aachen.de> - 5.4.2.2-1
 - RPM packaging for LibreOffice Online in Fedora
