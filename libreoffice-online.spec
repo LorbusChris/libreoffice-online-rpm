@@ -55,6 +55,11 @@ cat > %{buildroot}%{_sysconfdir}/cron.d/loolwsd.cron <<EOF
 #Remove old tiles once every 10 days at midnight
 0 0 */1 * * root find /var/cache/loolwsd -name \"*.png\" -a -atime +10 -exec rm {} \;
 EOF
+mkdir -p %{buildroot}%{_sysconfdir}/pam.d
+cat > %{buildroot}%{_sysconfdir}/pam.d/loolwsd <<EOF
+auth       required     pam_unix.so
+account    required     pam_unix.so
+EOF
 
 %files
 %{_bindir}/loolwsd
@@ -74,6 +79,7 @@ EOF
 %{_unitdir}/loolwsd.service
 %config(noreplace) %{_sysconfdir}/sysconfig/loolwsd
 %config(noreplace) %{_sysconfdir}/cron.d/loolwsd.cron
+%config(noreplace) %{_sysconfdir}/pam.d/loolwsd
 %dir %{_sysconfdir}/%{name}
 %config(noreplace) %attr(640, lool, root) %{_sysconfdir}/%{name}/loolwsd.xml
 %config %{_sysconfdir}/%{name}/loolkitconfig.xcu
@@ -120,6 +126,7 @@ su lool -c "loolwsd-systemplate-setup ${loolparent}/lool/systemplate ${loroot} >
 %changelog
 * Thu Feb 1 2018 Christian Glombek <christian.glombek@rwth-aachen.de> - 6.0.0.3-1
 - Updated to version 6.0.0.3
+- Add PAM support (upstream @Timar)
 
 * Wed Sep 27 2017 Christian Glombek <christian.glombek@rwth-aachen.de> - 5.4.2.2-1
 - RPM packaging for LibreOffice Online in Fedora
