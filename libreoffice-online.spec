@@ -1,5 +1,5 @@
 Name:           libreoffice-online
-Version:        5.4.2.2
+Version:        6.0.0.3
 Release:        1%{?dist}
 Summary:        LibreOffice Online Web Socket Daemon
 License:        MPL
@@ -8,7 +8,7 @@ Source0:        https://github.com/LibreOffice/online/archive/libreoffice-%{vers
 
 %{?systemd_requires}
 BuildRequires:  systemd
-BuildRequires:  libcap libcap-devel libpng-devel poco-devel >= 1.7.5 python python-polib
+BuildRequires:  libcap libcap-devel libpng-devel poco-devel >= 1.7.5 python python-polib pcre-devel
 BuildRequires:  kernel-headers glibc-devel autoconf automake libtool cppunit-devel npm jake fontconfig
 
 Requires(pre):  shadow-utils
@@ -37,18 +37,24 @@ LibreOffice Online Web Socket Daemon
 %configure \
   --enable-silent-rules \
   --with-lokit-path=`pwd`/bundled/include \
-  --with-lo-path=%{_libdir}
+  --with-lo-path=%{_libdir} \
+  --disable-setcap
 
-env BUILDING_FROM_RPMBUILD=yes make CXXFLAGS="%{optflags} -Wno-error" %{?_smp_mflags}
+make CXXFLAGS="%{optflags} -Wno-error" %{?_smp_mflags}
+
+%check
+#make check
 
 %install
-env BUILDING_FROM_RPMBUILD=yes make install DESTDIR=%{buildroot}
-%__install -D -m 444 loolwsd.service %{buildroot}%{_unitdir}/loolwsd.service
+make install DESTDIR=%{buildroot}
+install -D -m 444 loolwsd.service %{buildroot}%{_unitdir}/loolwsd.service
 install -d -m 755 %{buildroot}%{_localstatedir}/adm/fillup-templates
 install -D -m 644 sysconfig.loolwsd %{buildroot}%{_sysconfdir}/sysconfig/loolwsd
 mkdir -p %{buildroot}%{_sysconfdir}/cron.d
-echo "#Remove old tiles once every 10 days at midnight" > %{buildroot}%{_sysconfdir}/cron.d/loolwsd.cron
-echo "0 0 */1 * * root find /var/cache/loolwsd -name \"*.png\" -a -atime +10 -exec rm {} \;" >> %{buildroot}/etc/cron.d/loolwsd.cron
+cat > %{buildroot}%{_sysconfdir}/cron.d/loolwsd.cron <<EOF
+#Remove old tiles once every 10 days at midnight
+0 0 */1 * * root find /var/cache/loolwsd -name \"*.png\" -a -atime +10 -exec rm {} \;
+EOF
 
 %files
 %{_bindir}/loolwsd
@@ -58,15 +64,20 @@ echo "0 0 */1 * * root find /var/cache/loolwsd -name \"*.png\" -a -atime +10 -ex
 %{_bindir}/loolmount
 %{_bindir}/loolstress
 %{_bindir}/looltool
+%{_bindir}/loolconfig
+%dir %{_datadir}/%{name}
 %{_datadir}/%{name}/favicon.ico
 %{_datadir}/%{name}/discovery.xml
 %{_datadir}/%{name}/robots.txt
+%dir %{_datadir}/%{name}/loleaflet
 %{_datadir}/%{name}/loleaflet/*
 %{_unitdir}/loolwsd.service
 %config(noreplace) %{_sysconfdir}/sysconfig/loolwsd
 %config(noreplace) %{_sysconfdir}/cron.d/loolwsd.cron
+%dir %{_sysconfdir}/%{name}
 %config(noreplace) %attr(640, lool, root) %{_sysconfdir}/%{name}/loolwsd.xml
 %config %{_sysconfdir}/%{name}/loolkitconfig.xcu
+%dir %{_docdir}/%{name}
 %doc %{_docdir}/%{name}/README.vars
 %doc %{_docdir}/%{name}/protocol.txt
 %doc %{_docdir}/%{name}/reference.txt
@@ -107,6 +118,9 @@ su lool -c "loolwsd-systemplate-setup ${loolparent}/lool/systemplate ${loroot} >
 %systemd_postun loolwsd.service
 
 %changelog
+* Thu Feb 1 2018 Christian Glombek <christian.glombek@rwth-aachen.de> - 6.0.0.3-1
+- Updated to version 6.0.0.3
+
 * Wed Sep 27 2017 Christian Glombek <christian.glombek@rwth-aachen.de> - 5.4.2.2-1
 - RPM packaging for LibreOffice Online in Fedora
 - Forked from https://github.com/LibreOffice/online/blob/fdec71ad6963bd91fa56b379bdb0380776efd93a/loolwsd.spec.in
