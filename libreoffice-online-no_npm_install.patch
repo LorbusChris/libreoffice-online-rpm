@@ -1,0 +1,61 @@
+diff -ru '--exclude=.git' b/configure.ac c/configure.ac
+--- b/configure.ac	2018-02-01 01:59:50.206747131 +0100
++++ c/configure.ac	2018-02-01 02:23:59.539323390 +0100
+@@ -117,6 +117,10 @@
+             AS_HELP_STRING([--disable-setcap],
+                           [Do not set capabilities on files. For packaging builds]))
+ 
++AC_ARG_ENABLE([npm-install],
++            AS_HELP_STRING([--disable-npm-install],
++                          [Do not run npm install during the build]))
++
+ # Handle options
+ AS_IF([test "$enable_debug" = yes -a -n "$with_poco_libs"],
+       [POCO_DEBUG_SUFFIX=d],
+@@ -415,6 +419,22 @@
+ 
+ AC_SUBST(ENABLE_SETCAP)
+ 
++AS_IF([test "$enable_npm_install" != "no"],
++      [AC_DEFINE([ENABLE_NPM_INSTALL],1,[Whether to enable setting of capabilities])],
++      [AC_DEFINE([ENABLE_NPM_INSTALL],0,[Whether to enable setting of capabilities])])
++
++AM_CONDITIONAL([ENABLE_NPM_INSTALL], [test "$enable_npm_install" != "no"])
++
++ENABLE_NPM_INSTALL=
++if test "$enable_npm_install" != "no"; then
++    ENABLE_NPM_INSTALL=true
++    npm_msg="npm install enabled"
++else
++    npm_msg="npm install disabled"
++fi
++
++AC_SUBST(ENABLE_NPM_INSTALL)
++
+ AC_CONFIG_FILES([Makefile
+                  test/Makefile
+                  loleaflet/Makefile
+@@ -435,6 +455,7 @@
+     SSL support             $ssl_msg
+     Debug & low security    $debug_msg
+     Set capabilities        $setcap_msg
++    NPM install             $npm_msg
+ 
+     \$ make # to compile"
+ if test -n "$with_lo_path"; then
+diff -ru '--exclude=.git' b/loleaflet/Makefile.am c/loleaflet/Makefile.am
+--- b/loleaflet/Makefile.am	2018-02-01 01:59:50.206747131 +0100
++++ c/loleaflet/Makefile.am	2018-02-01 02:23:59.539323390 +0100
+@@ -24,8 +24,12 @@
+ 	jake build debug=$(ENABLE_DEBUG) minify=$(MINIFY)
+ 
+ node_modules: npm-shrinkwrap.json
++if ENABLE_NPM_INSTALL
+ 	npm install
+ 	touch node_modules
++else
++	echo "Skipping npm install"
++endif
+ 
+ dist/$(JQUERY_UI_IMAGE_PATH)/%.png: $(JQUERY_UI_IMAGE_PATH)/%.png
+ 	mkdir -p dist/$(JQUERY_UI_IMAGE_PATH)

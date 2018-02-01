@@ -7,9 +7,10 @@ License:        MPL
 Source0:        https://github.com/LibreOffice/online/archive/libreoffice-%{version}.tar.gz
 
 Patch0:         %{name}-no_setcap_build.patch
+Patch1:         %{name}-no_npm_install.patch
 
 %{?systemd_requires}
-BuildRequires:  systemd
+BuildRequires:  systemd nodejs-packaging
 BuildRequires:  libcap libcap-devel libpng-devel poco-devel >= 1.7.5 python python-polib pcre-devel
 BuildRequires:  kernel-headers glibc-devel autoconf automake libtool cppunit-devel npm jake fontconfig
 
@@ -34,6 +35,7 @@ LibreOffice Online Web Socket Daemon
 %prep
 %setup -n online-libreoffice-%{version}
 %patch0 -p1
+%patch1 -p1
 
 %build
 ./autogen.sh
@@ -41,12 +43,15 @@ LibreOffice Online Web Socket Daemon
   --enable-silent-rules \
   --with-lokit-path=`pwd`/bundled/include \
   --with-lo-path=%{_libdir} \
-  --disable-setcap
+  --disable-setcap \
+  --disable-npm-install
+
+cd loleaflet
+%nodejs_fixdep uglify-js
+%nodejs_symlink_deps --check
+cd ..
 
 make CXXFLAGS="%{optflags} -Wno-error" %{?_smp_mflags}
-
-%check
-#make check
 
 %install
 make install DESTDIR=%{buildroot}
@@ -63,6 +68,10 @@ cat > %{buildroot}%{_sysconfdir}/pam.d/loolwsd <<EOF
 auth       required     pam_unix.so
 account    required     pam_unix.so
 EOF
+
+%check
+%{__nodejs} -e 'require("./loleaflet")'
+#make check
 
 %files
 %{_bindir}/loolwsd
@@ -130,6 +139,7 @@ su lool -c "loolwsd-systemplate-setup ${loolparent}/lool/systemplate ${loroot} >
 * Thu Feb 1 2018 Christian Glombek <christian.glombek@rwth-aachen.de> - 6.0.0.3-1
 - Updates to version 6.0.0.3
 - Adds patch to to build without env
+- Adds patch to disable npm install during build
 - Adds PAM support (upstream @Timar)
 
 * Wed Sep 27 2017 Christian Glombek <christian.glombek@rwth-aachen.de> - 5.4.2.2-1
