@@ -1,6 +1,6 @@
 Name:           libreoffice-online
 Version:        6.0.0.3
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        LibreOffice Online Web Socket Daemon
 License:        MPL
 
@@ -127,6 +127,9 @@ su lool -c "loolwsd-systemplate-setup ${loolparent}/lool/systemplate ${loroot} >
 %systemd_postun loolwsd.service
 
 %changelog
+* Sun May 13 2018 Bugzy Little <bugzylittle@gmail.com> - 6.0.0.3-2
+- Reduce package install requirements
+
 * Thu Feb 1 2018 Christian Glombek <christian.glombek@rwth-aachen.de> - 6.0.0.3-1
 - Updates to version 6.0.0.3
 - Adds patch to to build without env
