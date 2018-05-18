@@ -1,6 +1,6 @@
 Name:           libreoffice-online
 Version:        6.0.0.3
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        LibreOffice Online Web Socket Daemon
 License:        MPL
 
@@ -14,7 +14,7 @@ BuildRequires:  libcap libcap-devel libpng-devel poco-devel >= 1.7.5 python pyth
 BuildRequires:  kernel-headers glibc-devel autoconf automake libtool cppunit-devel npm jake fontconfig
 
 Requires(pre):  shadow-utils
-Requires:       libreoffice systemd
+Requires:       libreoffice-core systemd
 Requires:       expat keyutils-libs krb5-libs libattr libcap libcom_err libgcc libpng libselinux pcre xz-libs zlib cppunit openssl-libs
 Requires:       poco-crypto >= 1.7.5 poco-foundation >= 1.7.5 poco-json >= 1.7.5 poco-net >= 1.7.5 poco-netssl >= 1.7.5 poco-util >= 1.7.5 poco-xml >= 1.7.5
 Requires:       atk avahi-glib avahi-libs bzip2-libs cairo cups-libs dbus-glib dbus-libs fontconfig freetype GConf2 gdk-pixbuf2 glib2 gnome-vfs2 graphite2
@@ -127,6 +127,9 @@ su lool -c "loolwsd-systemplate-setup ${loolparent}/lool/systemplate ${loroot} >
 %systemd_postun loolwsd.service
 
 %changelog
+* Sun May 13 2018 Bugzy Little <bugzylittle@gmail.com> - 6.0.0.3-2
+- Reduce package install requirements
+
 * Thu Feb 1 2018 Christian Glombek <christian.glombek@rwth-aachen.de> - 6.0.0.3-1
 - Updates to version 6.0.0.3
 - Adds patch to to build without env
